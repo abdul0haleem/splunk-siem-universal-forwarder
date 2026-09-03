@@ -122,3 +122,134 @@ After installing Splunk Enterprise, the application was launched and configured 
 #### Purpose
 
 This step configures Splunk Enterprise to **receive log data from the Splunk Universal Forwarder**. Port **9997** is used as the receiving port through which forwarded event data is sent from the Windows endpoint to the Splunk Enterprise server.
+
+### 4. Downloading and Installing Splunk Universal Forwarder
+
+A separate **Windows 11 virtual machine** was prepared in **VMware Workstation** to function as the endpoint for the Splunk Universal Forwarder. The Universal Forwarder was installed on this system to collect and forward Windows event logs to the Splunk Enterprise server.
+
+#### Procedure
+
+1. Launch **VMware Workstation** and start the prepared **Windows 11 virtual machine**.
+
+![Figure 6 - Windows 11 virtual machine](screenshots/06-windows-11-forwarder-vm.png)
+
+*Figure 6: Windows 11 virtual machine prepared for Splunk Universal Forwarder installation.*
+
+2. Open a web browser within the Windows 11 virtual machine and navigate to the [official Splunk website](https://www.splunk.com/?utm_source=chatgpt.com).
+3. Navigate to the **Splunk Universal Forwarder** download section.
+4. Select **Windows** as the target operating system and download the appropriate **Splunk Universal Forwarder** installation package.
+
+![Figure 7 - Splunk Universal Forwarder download](screenshots/07-splunk-universal-forwarder-download.png)
+
+*Figure 7: Splunk Universal Forwarder page showing the Windows installation package.*
+
+5. After the download is complete, navigate to the **Downloads** folder.
+6. Locate the downloaded Splunk Universal Forwarder installer and open it to begin the installation process.
+
+#### Purpose
+
+This step prepares the Windows 11 endpoint for the installation of the **Splunk Universal Forwarder**, which will be used to collect Windows logs and forward them to the Splunk Enterprise server for centralized monitoring and analysis.
+
+### 5. Installing and Configuring Splunk Universal Forwarder
+
+The Splunk Universal Forwarder installation was initiated on the **Windows 11 virtual machine**. During the installation, the required configuration settings were provided to establish communication between the Universal Forwarder and the Splunk Enterprise server.
+
+#### Procedure
+
+1. Open the downloaded **Splunk Universal Forwarder** installer.
+2. On the first installation window, review and accept the **license agreement**.
+3. Select the **Customize** option to configure the installation.
+
+![Figure 8 - Splunk Universal Forwarder installation](screenshots/08-universal-forwarder-installation.png)
+
+*Figure 8: Splunk Universal Forwarder installation screen showing the license agreement and customization option.*
+
+4. Proceed through the installation using the default settings where applicable.
+5. When prompted to configure the **user account**, select **Local System** as the account under which the Universal Forwarder will run.
+
+![Figure 9 - Local System account](screenshots/09-local-system-account.png)
+
+*Figure 9: Configuring the Splunk Universal Forwarder to run under the Local System account.*
+
+6. Continue to the log selection window and select the **types of logs to be monitored**. The following Windows event logs were selected:
+
+   * **Application**
+   * **Security**
+   * **System**
+
+![Figure 10 - Windows log sources](screenshots/10-windows-log-sources.png)
+
+*Figure 10: Selecting Windows log sources to be monitored by the Splunk Universal Forwarder.*
+
+7. During the installation, the **Deployment Server** configuration window will appear. Enter the **hostname or IP address** of the Windows system where Splunk Enterprise is installed.
+8. To identify the IP address of the Splunk Enterprise system, open **Command Prompt** and execute:
+
+```cmd
+ipconfig
+```
+
+9. Identify and copy the **IPv4 Address** of the Splunk Enterprise Windows system.
+
+![Figure 11 - Splunk Enterprise IPv4 address](screenshots/11-splunk-enterprise-ipconfig.png)
+
+*Figure 11: Obtaining the Splunk Enterprise server IPv4 address using the `ipconfig` command.*
+
+10. Enter the copied IPv4 address in the **Deployment Server** hostname/IP field and use the default port **8089**.
+
+![Figure 12 - Deployment Server configuration](screenshots/12-deployment-server-8089.png)
+
+*Figure 12: Configuring the Deployment Server hostname/IP address and port 8089.*
+
+11. Click **Next** to continue.
+12. In the **Receiving Indexer** configuration window, enter the **hostname or IP address** of the Windows system running Splunk Enterprise.
+13. Enter the receiving port **9997**, which was configured earlier in Splunk Enterprise.
+
+![Figure 13 - Receiving Indexer configuration](screenshots/13-receiving-indexer-9997.png)
+
+*Figure 13: Configuring the Receiving Indexer using the Splunk Enterprise server address and port 9997.*
+
+14. Click **Next** and review the selected configuration options.
+15. Click **Install** to begin installing the Splunk Universal Forwarder.
+16. Wait for the installation process to complete.
+
+#### Purpose
+
+This step installs and configures the **Splunk Universal Forwarder** on the Windows 11 endpoint. The **Deployment Server** configuration specifies the Splunk Enterprise server and management port **8089**, while the **Receiving Indexer** configuration specifies the Splunk Enterprise server and receiving port **9997** to which collected logs will be forwarded.
+
+The **Application, Security, and System** event logs selected during installation provide the Windows event data that will subsequently be collected and analyzed through Splunk Enterprise.
+
+### 6. Verifying Forwarded Windows Logs in Splunk Enterprise
+
+After configuring the Splunk Universal Forwarder, the **Splunk Enterprise** interface was accessed to verify that Windows event logs were successfully received from the endpoint.
+
+#### Procedure
+
+1. Open **Splunk Enterprise** and navigate to the **Search & Reporting** application.
+2. Select **Data Summary** to view the available indexed data.
+3. Under **Hosts**, verify that the number of available hosts has changed to **1**.
+4. The hostname of the connected Windows endpoint is displayed. In this lab, the hostname was **DESKTOP-LHM0G2V**.
+
+![Figure 14 - Splunk Data Summary](screenshots/14-splunk-data-summary.png)
+
+*Figure 14: Splunk Enterprise Data Summary showing the connected Windows host DESKTOP-LHM0G2V.*
+
+5. The **event count** associated with the host can also be viewed, confirming that events are being received.
+6. Under **Sources**, the available Windows event log sources can be observed, including **Application, Security, and System** logs.
+
+![Figure 15 - Windows event sources](screenshots/15-windows-event-sources.png)
+
+*Figure 15: Windows event log sources received by Splunk Enterprise.*
+
+7. Select the required **Host** or **Source** to view the corresponding events.
+8. The received logs can then be searched and monitored using the **Splunk Search & Reporting** interface.
+
+![Figure 16 - Received Windows logs](screenshots/16-windows-event-logs.png)
+
+*Figure 16: Windows event logs received and displayed in Splunk Enterprise.*
+
+#### Purpose
+
+This step verifies the successful communication between the **Splunk Universal Forwarder** and **Splunk Enterprise**. The appearance of the Windows host and its **Application, Security, and System** event sources confirms that Windows event data is being successfully forwarded to and indexed by Splunk Enterprise.
+
+The received events can then be searched and monitored through **Splunk Search & Reporting**, demonstrating the successful completion of the Windows log collection and centralized monitoring process.
+
