@@ -65,3 +65,27 @@ This step provides the **Splunk Enterprise installation package** required to de
 ![Figure 1 - Splunk Enterprise download page](screenshots/01-splunk-enterprise-download.png)
 
 *Figure 1: Splunk Enterprise download page showing the Windows installation package.*
+
+### 2. Installing Splunk Enterprise
+
+The downloaded Splunk Enterprise installation package was located in the **Downloads** folder and used to install Splunk Enterprise on the Windows system.
+
+#### Procedure
+
+1. Navigate to the **Downloads** folder and locate the downloaded Splunk Enterprise installer.
+2. Open the installer to launch the **Splunk Enterprise Setup Wizard**.
+3. Review the Splunk Enterprise license agreement and accept the terms to continue.
+4. Select the installation location for Splunk Enterprise. The default installation directory was used.
+5. Create the initial **Splunk administrator account** by entering a username and password.
+6. Review the selected installation options and click **Install** to begin the installation.
+7. Wait for the installation process to complete.
+8. Once the installation is completed successfully, click **Finish** to close the Setup Wizard.
+
+#### Purpose
+
+This step installs **Splunk Enterprise** on the Windows system, establishing the central SIEM platform that will later be configured to **receive, index, search, and analyze security logs** from the Windows endpoint.
+
+![Figure 2 - Splunk Enterprise installation](screenshots/02-splunk-enterprise-installation.png)
+
+*Figure 2: Splunk Enterprise installation and configuration using the Setup Wizard.*
+
