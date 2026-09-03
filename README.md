@@ -21,3 +21,45 @@ The main objectives of the project were:
 * To collect and monitor **Windows Application, Security, and System event logs**.
 * To verify successful log forwarding and analyze the received events using **Splunk Search & Reporting**.
 
+## 🖥️ Lab Environment
+
+| Component                   | Configuration                                  |
+| --------------------------- | ---------------------------------------------- |
+| **SIEM Platform**           | Splunk Enterprise                              |
+| **Log Collection Agent**    | Splunk Universal Forwarder                     |
+| **Virtualization Platform** | VMware Workstation                             |
+| **SIEM Server**             | Windows system running Splunk Enterprise       |
+| **Endpoint**                | Windows 11 virtual machine                     |
+| **Log Sources**             | Windows Application, Security, and System logs |
+| **Receiving Port**          | 9997                                           |
+| **Deployment Server Port**  | 8089                                           |
+| **Monitoring Interface**    | Splunk Web / Search & Reporting                |
+
+## 🛠️ Tools Used
+
+* **Splunk Enterprise** – Central SIEM platform used for receiving, indexing, searching, and monitoring security events.
+* **Splunk Universal Forwarder** – Used to collect and forward Windows event logs to Splunk Enterprise.
+* **VMware Workstation** – Used to host the Windows 11 virtual machine used as the log-generating endpoint.
+* **Windows 11** – Endpoint operating system used for generating and collecting Windows event logs.
+* **Windows Command Prompt (`ipconfig`)** – Used to identify the IPv4 address of the Splunk Enterprise server.
+* **Splunk Web / Search & Reporting** – Used to verify hosts, sources, event counts, and received logs.
+
+### 1. Downloading Splunk Enterprise
+
+The first step in the SIEM lab setup was to obtain the **Splunk Enterprise** installation package from the official Splunk website.
+
+#### Procedure
+
+1. Navigate to the [official Splunk website](https://www.splunk.com/?utm_source=chatgpt.com).
+2. Navigate to **Trials & Downloads** and select **Start Your Free Trial**.
+3. Enter the required account information and complete the account registration process.
+4. Verify the account using the verification code sent to the registered email address.
+5. After completing the account creation process, navigate to the **Splunk Enterprise** download section.
+6. Select **Windows** as the target operating system and choose the appropriate Splunk Enterprise installation package.
+7. Download the installation package to the Windows system that will be used for the SIEM lab.
+
+#### Purpose
+
+This step provides the **Splunk Enterprise installation package** required to deploy the central SIEM platform. Splunk Enterprise will subsequently be configured to receive and analyze security logs forwarded from the Windows endpoint using the **Splunk Universal Forwarder**.
+
+**Figure 1: Splunk Enterprise download page showing the Windows installation package.**
