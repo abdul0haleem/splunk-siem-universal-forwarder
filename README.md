@@ -3,6 +3,24 @@ Hands-on Splunk SIEM lab demonstrating the setup of Splunk Enterprise and deploy
 
 # Splunk SIEM Setup and Universal Forwarder Deployment
 
+## 📑 Table of Contents
+
+* [Project Overview](#project-overview)
+* [Objectives](#-objectives)
+* [Lab Environment](#-lab-environment)
+* [Tools Used](#-tools-used)
+* [Project Implementation](#-project-implementation)
+
+  * [1. Downloading Splunk Enterprise](#1-downloading-splunk-enterprise)
+  * [2. Installing Splunk Enterprise](#2-installing-splunk-enterprise)
+  * [3. Configuring Splunk Receiving](#3-configuring-splunk-receiving)
+  * [4. Downloading and Installing Splunk Universal Forwarder](#4-downloading-and-installing-splunk-universal-forwarder)
+  * [5. Installing and Configuring Splunk Universal Forwarder](#5-installing-and-configuring-splunk-universal-forwarder)
+  * [6. Verifying Forwarded Windows Logs in Splunk Enterprise](#6-verifying-forwarded-windows-logs-in-splunk-enterprise)
+* [Skills Earned](#-7-skills-earned)
+* [Key Learnings](#-8-key-learnings)
+* [Conclusion](#-9-conclusion)
+
 ## 📖 Project Overview
 
 This project focused on setting up a **Security Information and Event Management (SIEM) lab using Splunk Enterprise and the Splunk Universal Forwarder**. Splunk Enterprise was deployed on a Windows system to function as the central SIEM platform, while a separate **Windows 11 virtual machine running in VMware Workstation** was configured with the Splunk Universal Forwarder.
@@ -253,3 +271,33 @@ This step verifies the successful communication between the **Splunk Universal F
 
 The received events can then be searched and monitored through **Splunk Search & Reporting**, demonstrating the successful completion of the Windows log collection and centralized monitoring process.
 
+## 🧠 Skills Earned
+
+Through this project, the following practical skills were developed:
+
+* **Splunk Enterprise installation and configuration**
+* **Splunk Universal Forwarder installation and configuration**
+* **SIEM architecture and log management concepts**
+* **Windows event log collection and monitoring**
+* **Configuration of Splunk receiving ports**
+* **Configuration of Deployment Server and Receiving Indexer settings**
+* **Log forwarding between Windows endpoints and a centralized SIEM**
+* **Splunk Search & Reporting and Data Summary usage**
+* **Identification and monitoring of Windows hosts and log sources**
+* **Basic troubleshooting and verification of SIEM log ingestion**
+
+## 🔑 Key Learnings
+
+This project provided practical experience in deploying a basic **SIEM environment** and understanding how endpoint logs are centralized for security monitoring. It demonstrated the role of **Splunk Enterprise** as the central platform and the **Universal Forwarder** as the log collection and forwarding component.
+
+The project also provided an understanding of how **Windows Application, Security, and System events** can be collected and viewed through a centralized interface. Configuring the receiving port, Deployment Server, and Receiving Indexer helped develop an understanding of communication between the endpoint and SIEM server.
+
+The verification process using **Data Summary** and **Search & Reporting** demonstrated how security analysts can identify connected hosts, examine log sources, review event counts, and search collected events for monitoring and investigation.
+
+## ✅ Conclusion
+
+The project successfully demonstrated the implementation of a basic **SIEM lab using Splunk Enterprise and Splunk Universal Forwarder**. Splunk Enterprise was installed and configured as the centralized SIEM platform, while the Splunk Universal Forwarder was deployed on a **Windows 11 endpoint** to collect and forward Windows event logs.
+
+The successful appearance of the Windows host **DESKTOP-LHM0G2V**, along with the **Application, Security, and System** log sources in Splunk Enterprise, confirmed that the log collection and forwarding process was working successfully.
+
+Overall, the project provided valuable hands-on experience with **SIEM deployment, centralized log collection, Windows event monitoring, Splunk configuration, and basic security monitoring**, establishing a practical foundation for further **SOC and security operations activities**.
