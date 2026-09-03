@@ -62,4 +62,6 @@ The first step in the SIEM lab setup was to obtain the **Splunk Enterprise** ins
 
 This step provides the **Splunk Enterprise installation package** required to deploy the central SIEM platform. Splunk Enterprise will subsequently be configured to receive and analyze security logs forwarded from the Windows endpoint using the **Splunk Universal Forwarder**.
 
-**Figure 1: Splunk Enterprise download page showing the Windows installation package.**
+![Figure 1 - Splunk Enterprise download page](screenshots/01-splunk-enterprise-download.png)
+
+*Figure 1: Splunk Enterprise download page showing the Windows installation package.*
