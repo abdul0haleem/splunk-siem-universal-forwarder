@@ -5,7 +5,7 @@ Hands-on Splunk SIEM lab demonstrating the setup of Splunk Enterprise and deploy
 
 ## 📑 Table of Contents
 
-* [Project Overview](#project-overview)
+* [Project Overview](#-project-overview)
 * [Objectives](#-objectives)
 * [Lab Environment](#-lab-environment)
 * [Tools Used](#-tools-used)
