@@ -89,3 +89,36 @@ This step installs **Splunk Enterprise** on the Windows system, establishing the
 
 *Figure 2: Splunk Enterprise installation and configuration using the Setup Wizard.*
 
+### 3. Configuring Splunk Receiving
+
+After installing Splunk Enterprise, the application was launched and configured to receive data from the **Splunk Universal Forwarder**.
+
+#### Procedure
+
+1. Launch **Splunk Enterprise** from the Windows system.
+2. The Splunk login screen will appear. Enter the **username and password** created during the installation process.
+3. After successful authentication, the **Splunk Web interface** will be displayed.
+4. Click **Settings** to open the settings menu.
+5. Under the **Data** section, select **Forwarding and receiving**.
+
+![Figure 3 - Forwarding and Receiving settings](screenshots/03-forwarding-receiving-settings.png)
+
+*Figure 3: Accessing the Forwarding and Receiving configuration under Splunk Settings.*
+
+6. In the **Receive Data** section, locate **Configure receiving** and click **Add new**.
+
+![Figure 4 - Receive Data configuration](screenshots/04-receive-data.png)
+
+*Figure 4: Receive Data section in the Splunk Forwarding and Receiving configuration.*
+
+7. Specify the port number that Splunk Enterprise will use to receive forwarded data. The default Splunk receiving port **9997** was used.
+
+![Figure 5 - Splunk receiving port](screenshots/05-receiving-port-9997.png)
+
+*Figure 5: Configuring Splunk Enterprise to receive forwarded data on port 9997.*
+
+8. Save the configuration to enable Splunk Enterprise to listen for incoming data from the Universal Forwarder.
+
+#### Purpose
+
+This step configures Splunk Enterprise to **receive log data from the Splunk Universal Forwarder**. Port **9997** is used as the receiving port through which forwarded event data is sent from the Windows endpoint to the Splunk Enterprise server.
