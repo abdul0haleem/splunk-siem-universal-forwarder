@@ -62,6 +62,8 @@ The main objectives of the project were:
 * **Windows Command Prompt (`ipconfig`)** – Used to identify the IPv4 address of the Splunk Enterprise server.
 * **Splunk Web / Search & Reporting** – Used to verify hosts, sources, event counts, and received logs.
 
+## ⚙️ Project Implementation 
+
 ### 1. Downloading Splunk Enterprise
 
 The first step in the SIEM lab setup was to obtain the **Splunk Enterprise** installation package from the official Splunk website.
