@@ -27,6 +27,54 @@ This project focused on setting up a **Security Information and Event Management
 
 The Universal Forwarder was configured to collect Windows event logs, including **Application, Security, and System logs**, and forward them to the Splunk Enterprise server. The successful appearance of the Windows host and its associated event sources in Splunk Enterprise confirmed that the **log collection and forwarding process was functioning successfully**.
 
+## 🏗️ Lab Architecture
+
+The lab environment consists of a **Splunk Enterprise SIEM server and a Windows 11 endpoint** distributed across the **Windows host system and VMware Workstation**.
+
+* **Windows Host → Splunk Enterprise → Central SIEM Server**
+* **Windows 11 → VMware Workstation → Splunk Universal Forwarder**
+* **Universal Forwarder → Splunk Enterprise → Log Collection & Analysis**
+
+This project provides practical experience with **SIEM deployment, Universal Forwarder configuration, Windows log collection, event monitoring, log analysis, and basic SOC operations** using Splunk.
+
+### 🌐 Lab Network Architecture
+
+```text
+                         HOST COMPUTER
+                              │
+              ┌───────────────┴───────────────┐
+              │                               │
+       Splunk Enterprise                  VMware
+       Windows System                       │
+              │                             ▼
+              │                      Windows 11 VM
+              │                             │
+              │                    Splunk Universal
+              │                       Forwarder
+              │                             │
+              │                             │
+              ◄──────────── Port 9997 ──────┘
+              │
+              ▼
+       Splunk Enterprise
+          Central SIEM
+              │
+       ┌──────┼──────────┐
+       │      │          │
+       ▼      ▼          ▼
+   Application Security System
+      Logs      Logs      Logs
+       │        │         │
+       └────────┼─────────┘
+                ▼
+        Splunk Search &
+        Data Visualization
+```
+
+The **Splunk Universal Forwarder** installed on the Windows 11 VM collects **Application, Security, and System event logs** and forwards them to the **Splunk Enterprise server** over the configured receiving port **9997**.
+
+The **Splunk Enterprise server** acts as the central SIEM platform, receiving, indexing, searching, and analyzing the Windows logs for **security monitoring, event investigation, and basic SOC operations**.
+
 ## 🎯 Objectives
 
 The main objectives of the project were:
