@@ -51,17 +51,17 @@ The lab environment separates the centralized SIEM ingestion/indexing tier from 
 ```mermaid
 flowchart TD
     subgraph Host["Host Computer (Physical Machine)"]
-        SE["Splunk Enterprise (Central SIEM)<br/>• Web GUI: Port 8000<br/>• Splunkd Management: Port 8089<br/>• Ingestion Receiver: Port 9997"]
+        SE["Splunk Enterprise - Central SIEM<br/>Web GUI: Port 8000<br/>Splunkd: Port 8089<br/>Receiver: Port 9997"]
     end
 
     subgraph VM["VMware Workstation (Virtual Machine)"]
-        W11["Windows 11 Endpoint<br/>(DESKTOP-LHM0G2V)"]
-        UF["Splunk Universal Forwarder<br/>(Local System Account)"]
+        W11["Windows 11 Endpoint<br/>DESKTOP-LHM0G2V"]
+        UF["Splunk Universal Forwarder<br/>Local System Account"]
         W11 -->|Generates Events| UF
     end
 
-    UF -->|Forwards Logs (TCP Port 9997)| SE
-    UF -.->|Management / Deployment (Port 8089)| SE
+    UF -->|Forwards Logs via TCP 9997| SE
+    UF -.->|Management via Port 8089| SE
 
     subgraph Logs["Windows Event Logs Monitored"]
         direction LR
@@ -71,7 +71,7 @@ flowchart TD
     end
 
     SE --> Logs
-    SE --> SR["Splunk Search & Reporting / SOC Investigations"]
+    SE --> SR["Splunk Search and Reporting"]
 ```
 
 ### 🌐 Lab Network Architecture (ASCII)
