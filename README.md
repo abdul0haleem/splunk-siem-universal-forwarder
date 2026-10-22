@@ -43,7 +43,6 @@ This project focuses on deploying a **Security Information and Event Management 
 
 The Universal Forwarder was configured to collect critical Windows event logs—specifically **Application, Security, and System logs**—and stream them securely over TCP port **9997** to Splunk Enterprise. The successful ingestion and parsing of the endpoint host and event streams within Splunk Enterprise demonstrated an end-to-end telemetry pipeline suitable for SOC monitoring and threat detection.
 
-[▲ Back to Top](#table-of-contents)
 
 ---
 
@@ -119,7 +118,6 @@ flowchart TD
 
 The **Splunk Universal Forwarder** on the Windows 11 VM collects **Application, Security, and System event logs** and forwards them to the **Splunk Enterprise server** over the configured receiving port **9997**.
 
-[▲ Back to Top](#table-of-contents)
 
 ---
 
@@ -136,7 +134,6 @@ The primary objectives of this project were:
 * Ingest and index **Windows Application, Security, and System event logs**.
 * Verify event transmission and analyze received security data using **Splunk Search & Reporting**.
 
-[▲ Back to Top](#table-of-contents)
 
 ---
 
@@ -155,7 +152,6 @@ The primary objectives of this project were:
 | **Management Port** | `8089` (TCP) | Splunkd REST API & deployment server communication |
 | **Web UI Port** | `8000` (TCP) | Splunk Web console interface |
 
-[▲ Back to Top](#table-of-contents)
 
 ---
 
@@ -169,7 +165,6 @@ The primary objectives of this project were:
 * **Windows Command Prompt / PowerShell** – Used for network validation (`ipconfig`, `Test-NetConnection`).
 * **Splunk Web / Search & Reporting** – Interface used to verify hosts, inspect event sources, and execute SPL queries.
 
-[▲ Back to Top](#table-of-contents)
 
 ---
 
@@ -377,7 +372,6 @@ Once the agent was active, ingestion was verified within Splunk Enterprise.
 
 Validates that end-to-end network connectivity, port forwarding, authentication, and event indexing are functioning properly.
 
-[▲ Back to Top](#table-of-contents)
 
 ---
 
@@ -419,7 +413,6 @@ defaultGroup = default-autolb-group
 server = 192.168.1.50:9997
 ```
 
-[▲ Back to Top](#table-of-contents)
 
 ---
 
@@ -465,7 +458,6 @@ index=main sourcetype="WinEventLog:Security" (EventCode=4720 OR EventCode=4722 O
 | table _time, EventCode, TargetUserName, SubjectUserName
 ```
 
-[▲ Back to Top](#table-of-contents)
 
 ---
 
@@ -493,7 +485,6 @@ When deploying the Universal Forwarder in virtualized or segmented lab networks,
    Get-Content "C:\Program Files\SplunkUniversalForwarder\var\log\splunk\splunkd.log" -Tail 50
    ```
 
-[▲ Back to Top](#table-of-contents)
 
 ---
 
@@ -507,7 +498,6 @@ When deploying the Universal Forwarder in virtualized or segmented lab networks,
 * **SPL Query Crafting**: Writing Search Processing Language queries to detect authentication anomalies and system changes.
 * **Firewall & Network Troubleshooting**: Diagnosing host-to-VM connectivity and verifying open service sockets.
 
-[▲ Back to Top](#table-of-contents)
 
 ---
 
@@ -519,7 +509,6 @@ When deploying the Universal Forwarder in virtualized or segmented lab networks,
 * **Importance of Configuration Files**: While graphical installers are helpful for initial setups, understanding `inputs.conf` and `outputs.conf` is essential for scalable SOC operations.
 * **Validation Methodology**: Verification using Splunk's **Data Summary** confirms not only host discovery but also event volume, source typing, and timestamp alignment.
 
-[▲ Back to Top](#table-of-contents)
 
 ---
 
@@ -530,4 +519,3 @@ This project successfully established a working **SIEM pipeline using Splunk Ent
 
 The project demonstrates foundational knowledge essential for **SOC Analysts, Detection Engineers, and SIEM Administrators**, providing practical exposure to log forwarder deployment, network configurations, data verification, and event investigation.
 
-[▲ Back to Top](#table-of-contents)
