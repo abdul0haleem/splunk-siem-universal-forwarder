@@ -1,246 +1,284 @@
-# splunk-siem-universal-forwarder
-Hands-on Splunk SIEM lab demonstrating the setup of Splunk Enterprise and deployment of Splunk Universal Forwarder for centralized Windows event log collection, monitoring, and analysis.
+# Splunk SIEM Setup & Universal Forwarder Deployment
 
-# Splunk SIEM Setup and Universal Forwarder Deployment
+A hands-on Security Information and Event Management (SIEM) lab demonstrating the deployment of **Splunk Enterprise** and the configuration of the **Splunk Universal Forwarder** on a Windows 11 endpoint for centralized Windows event log collection, monitoring, and security analysis.
+
+[![Splunk](https://img.shields.io/badge/Splunk-Enterprise%20%26%20UF-000000?style=for-the-badge&logo=splunk&logoColor=white)](https://www.splunk.com/)
+[![Windows 11](https://img.shields.io/badge/Windows-11-0078D6?style=for-the-badge&logo=windows&logoColor=white)](https://www.microsoft.com/windows)
+[![VMware](https://img.shields.io/badge/VMware-Workstation-607078?style=for-the-badge&logo=vmware&logoColor=white)](https://www.vmware.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
+
+---
 
 ## 📑 Table of Contents
 
-* [Project Overview](#-project-overview)
-* [Objectives](#-objectives)
-* [Lab Environment](#-lab-environment)
-* [Tools Used](#-tools-used)
-* [Project Implementation](#-project-implementation)
+- [Project Overview](#project-overview)
+- [Lab Architecture](#lab-architecture)
+- [Objectives](#objectives)
+- [Lab Environment](#lab-environment)
+- [Tools Used](#tools-used)
+- [Project Implementation](#project-implementation)
+  - [1. Downloading Splunk Enterprise](#1-downloading-splunk-enterprise)
+  - [2. Installing Splunk Enterprise](#2-installing-splunk-enterprise)
+  - [3. Configuring Splunk Receiving](#3-configuring-splunk-receiving)
+  - [4. Downloading and Installing Splunk Universal Forwarder](#4-downloading-and-installing-splunk-universal-forwarder)
+  - [5. Installing and Configuring Splunk Universal Forwarder](#5-installing-and-configuring-splunk-universal-forwarder)
+  - [6. Verifying Forwarded Windows Logs in Splunk Enterprise](#6-verifying-forwarded-windows-logs-in-splunk-enterprise)
+- [Forwarder Configuration Files](#forwarder-configuration-files)
+- [Sample Splunk Queries (SPL) for Security Monitoring](#sample-splunk-queries-spl-for-security-monitoring)
+- [Network & Firewall Troubleshooting](#network--firewall-troubleshooting)
+- [Skills Earned](#skills-earned)
+- [Key Learnings](#key-learnings)
+- [Conclusion](#conclusion)
 
-  * [1. Downloading Splunk Enterprise](#1-downloading-splunk-enterprise)
-  * [2. Installing Splunk Enterprise](#2-installing-splunk-enterprise)
-  * [3. Configuring Splunk Receiving](#3-configuring-splunk-receiving)
-  * [4. Downloading and Installing Splunk Universal Forwarder](#4-downloading-and-installing-splunk-universal-forwarder)
-  * [5. Installing and Configuring Splunk Universal Forwarder](#5-installing-and-configuring-splunk-universal-forwarder)
-  * [6. Verifying Forwarded Windows Logs in Splunk Enterprise](#6-verifying-forwarded-windows-logs-in-splunk-enterprise)
-* [Skills Earned](#-7-skills-earned)
-* [Key Learnings](#-8-key-learnings)
-* [Conclusion](#-9-conclusion)
+---
 
 ## 📖 Project Overview
 
-This project focused on setting up a **Security Information and Event Management (SIEM) lab using Splunk Enterprise and the Splunk Universal Forwarder**. Splunk Enterprise was deployed on a Windows system to function as the central SIEM platform, while a separate **Windows 11 virtual machine running in VMware Workstation** was configured with the Splunk Universal Forwarder.
+This project focuses on deploying a **Security Information and Event Management (SIEM)** lab environment using **Splunk Enterprise** as the central data management and analytics engine and the **Splunk Universal Forwarder** as the lightweight endpoint log agent. Splunk Enterprise was deployed on a physical Windows host system, while a separate **Windows 11 virtual machine hosted in VMware Workstation** served as the target endpoint.
 
-The Universal Forwarder was configured to collect Windows event logs, including **Application, Security, and System logs**, and forward them to the Splunk Enterprise server. The successful appearance of the Windows host and its associated event sources in Splunk Enterprise confirmed that the **log collection and forwarding process was functioning successfully**.
+The Universal Forwarder was configured to collect critical Windows event logs—specifically **Application, Security, and System logs**—and stream them securely over TCP port **9997** to Splunk Enterprise. The successful ingestion and parsing of the endpoint host and event streams within Splunk Enterprise demonstrated an end-to-end telemetry pipeline suitable for SOC monitoring and threat detection.
+
+---
 
 ## 🏗️ Lab Architecture
 
-The lab environment consists of a **Splunk Enterprise SIEM server and a Windows 11 endpoint** distributed across the **Windows host system and VMware Workstation**.
+The lab environment separates the centralized SIEM ingestion/indexing tier from the endpoint log generation tier:
 
-* **Windows Host → Splunk Enterprise → Central SIEM Server**
-* **Windows 11 → VMware Workstation → Splunk Universal Forwarder**
-* **Universal Forwarder → Splunk Enterprise → Log Collection & Analysis**
+- **Windows Host System**: Acts as the central SIEM platform running **Splunk Enterprise** (Index, Search, Web interface, and Receiver).
+- **Windows 11 VM (VMware Workstation)**: Acts as the monitored client endpoint running **Splunk Universal Forwarder**.
+- **Data Pipeline**: Universal Forwarder collects local Windows Event Logs (`Wineventlog`) and sends them over TCP port `9997` to the Splunk Enterprise indexer.
 
-This project provides practical experience with **SIEM deployment, Universal Forwarder configuration, Windows log collection, event monitoring, log analysis, and basic SOC operations** using Splunk.
+```mermaid
+flowchart TD
+    subgraph Host["Host Computer (Physical Machine)"]
+        SE["Splunk Enterprise (Central SIEM)<br/>• Web GUI: Port 8000<br/>• Splunkd Management: Port 8089<br/>• Ingestion Receiver: Port 9997"]
+    end
 
-### 🌐 Lab Network Architecture
+    subgraph VM["VMware Workstation (Virtual Machine)"]
+        W11["Windows 11 Endpoint<br/>(DESKTOP-LHM0G2V)"]
+        UF["Splunk Universal Forwarder<br/>(Local System Account)"]
+        W11 -->|Generates Events| UF
+    end
+
+    UF -->|Forwards Logs (TCP Port 9997)| SE
+    UF -.->|Management / Deployment (Port 8089)| SE
+
+    subgraph Logs["Windows Event Logs Monitored"]
+        direction LR
+        App["Application Logs"]
+        Sec["Security Logs"]
+        Sys["System Logs"]
+    end
+
+    SE --> Logs
+    SE --> SR["Splunk Search & Reporting / SOC Investigations"]
+```
+
+### 🌐 Lab Network Architecture (ASCII)
 
 ```text
                          HOST COMPUTER
-                              │
-              ┌───────────────┴───────────────┐
-              │                               │
-       Splunk Enterprise                  VMware
-       Windows System                       │
-              │                             ▼
-              │                      Windows 11 VM
-              │                             │
-              │                    Splunk Universal
-              │                       Forwarder
-              │                             │
-              │                             │
-              ◄──────────── Port 9997 ──────┘
-              │
-              ▼
-       Splunk Enterprise
-          Central SIEM
-              │
-       ┌──────┼──────────┐
-       │      │          │
-       ▼      ▼          ▼
-   Application Security System
-      Logs      Logs      Logs
-       │        │         │
-       └────────┼─────────┘
-                ▼
-        Splunk Search &
-        Data Visualization
+                               │
+               ┌───────────────┴───────────────┐
+               │                               │
+        Splunk Enterprise                  VMware
+        Windows System                       │
+               │                             ▼
+               │                      Windows 11 VM
+               │                             │
+               │                    Splunk Universal
+               │                       Forwarder
+               │                             │
+               │                             │
+               ◄──────────── Port 9997 ──────┘
+               │
+               ▼
+        Splunk Enterprise
+           Central SIEM
+               │
+        ┌──────┼──────────┐
+        │      │          │
+        ▼      ▼          ▼
+    Application Security System
+       Logs      Logs      Logs
+        │        │         │
+        └────────┼─────────┘
+                 ▼
+         Splunk Search &
+         Data Visualization
 ```
 
-The **Splunk Universal Forwarder** installed on the Windows 11 VM collects **Application, Security, and System event logs** and forwards them to the **Splunk Enterprise server** over the configured receiving port **9997**.
+The **Splunk Universal Forwarder** on the Windows 11 VM collects **Application, Security, and System event logs** and forwards them to the **Splunk Enterprise server** over the configured receiving port **9997**.
 
-The **Splunk Enterprise server** acts as the central SIEM platform, receiving, indexing, searching, and analyzing the Windows logs for **security monitoring, event investigation, and basic SOC operations**.
+---
 
 ## 🎯 Objectives
 
-The main objectives of the project were:
+The primary objectives of this project were:
 
-* To understand the basic architecture and functionality of a **SIEM platform**.
-* To install and configure **Splunk Enterprise** as a centralized log management and monitoring platform.
-* To install and configure the **Splunk Universal Forwarder** on a Windows 11 endpoint.
-* To configure Splunk Enterprise to receive forwarded log data.
-* To establish communication between the **Universal Forwarder and Splunk Enterprise**.
-* To collect and monitor **Windows Application, Security, and System event logs**.
-* To verify successful log forwarding and analyze the received events using **Splunk Search & Reporting**.
+* Understand the core architecture and ingestion pipeline of a **SIEM platform**.
+* Install and configure **Splunk Enterprise** as a centralized log management and analytics server.
+* Install and configure the **Splunk Universal Forwarder** on an isolated Windows 11 endpoint.
+* Configure Splunk Enterprise listening ports to receive remote forwarder traffic.
+* Establish reliable network communication between the **Universal Forwarder and Splunk Enterprise**.
+* Ingest and index **Windows Application, Security, and System event logs**.
+* Verify event transmission and analyze received security data using **Splunk Search & Reporting**.
+
+---
 
 ## 🖥️ Lab Environment
 
-| Component                   | Configuration                                  |
-| --------------------------- | ---------------------------------------------- |
-| **SIEM Platform**           | Splunk Enterprise                              |
-| **Log Collection Agent**    | Splunk Universal Forwarder                     |
-| **Virtualization Platform** | VMware Workstation                             |
-| **SIEM Server**             | Windows system running Splunk Enterprise       |
-| **Endpoint**                | Windows 11 virtual machine                     |
-| **Log Sources**             | Windows Application, Security, and System logs |
-| **Receiving Port**          | 9997                                           |
-| **Deployment Server Port**  | 8089                                           |
-| **Monitoring Interface**    | Splunk Web / Search & Reporting                |
+| Component | Configuration | Description |
+| :--- | :--- | :--- |
+| **SIEM Platform** | Splunk Enterprise | Central indexer, search head, and monitoring console |
+| **Log Collection Agent** | Splunk Universal Forwarder | Lightweight data collection agent installed on endpoint |
+| **Virtualization Platform** | VMware Workstation | Virtualization hypervisor hosting endpoint VM |
+| **SIEM Server Host** | Windows Physical Host | Runs Splunk Enterprise |
+| **Monitored Endpoint** | Windows 11 Pro VM | Generates endpoint security events (`DESKTOP-LHM0G2V`) |
+| **Log Sources** | Windows Event Logs | Application, Security, and System channels |
+| **Data Ingestion Port** | `9997` (TCP) | Default Splunk forwarder receiver port |
+| **Management Port** | `8089` (TCP) | Splunkd REST API & deployment server communication |
+| **Web UI Port** | `8000` (TCP) | Splunk Web console interface |
+
+---
 
 ## 🛠️ Tools Used
 
 * **Splunk Enterprise** – Central SIEM platform used for receiving, indexing, searching, and monitoring security events.
-* **Splunk Universal Forwarder** – Used to collect and forward Windows event logs to Splunk Enterprise.
-* **VMware Workstation** – Used to host the Windows 11 virtual machine used as the log-generating endpoint.
-* **Windows 11** – Endpoint operating system used for generating and collecting Windows event logs.
-* **Windows Command Prompt (`ipconfig`)** – Used to identify the IPv4 address of the Splunk Enterprise server.
-* **Splunk Web / Search & Reporting** – Used to verify hosts, sources, event counts, and received logs.
+* **Splunk Universal Forwarder** – Purpose-built client agent used to harvest and forward Windows event logs.
+* **VMware Workstation** – Hypervisor used to host the Windows 11 virtual machine.
+* **Windows 11** – Monitored endpoint operating system generating event telemetry.
+* **Windows Command Prompt / PowerShell** – Used for network validation (`ipconfig`, `Test-NetConnection`).
+* **Splunk Web / Search & Reporting** – Interface used to verify hosts, inspect event sources, and execute SPL queries.
 
-## ⚙️ Project Implementation 
+---
+
+## ⚙️ Project Implementation
 
 ### 1. Downloading Splunk Enterprise
 
-The first step in the SIEM lab setup was to obtain the **Splunk Enterprise** installation package from the official Splunk website.
+The first step in the SIEM lab setup was obtaining the official **Splunk Enterprise** installer.
 
 #### Procedure
 
-1. Navigate to the [official Splunk website](https://www.splunk.com/?utm_source=chatgpt.com).
-2. Navigate to **Trials & Downloads** and select **Start Your Free Trial**.
-3. Enter the required account information and complete the account registration process.
-4. Verify the account using the verification code sent to the registered email address.
-5. After completing the account creation process, navigate to the **Splunk Enterprise** download section.
-6. Select **Windows** as the target operating system and choose the appropriate Splunk Enterprise installation package.
-7. Download the installation package to the Windows system that will be used for the SIEM lab.
+1. Navigate to the [official Splunk Enterprise download page](https://www.splunk.com/en_us/download/splunk-enterprise.html).
+2. Select **Start Your Free Trial** and complete the account registration/verification.
+3. Choose **Windows** as the target operating system (64-bit `.msi` package).
+4. Download the installation package to the Windows host system designated as the SIEM server.
 
 #### Purpose
 
-This step provides the **Splunk Enterprise installation package** required to deploy the central SIEM platform. Splunk Enterprise will subsequently be configured to receive and analyze security logs forwarded from the Windows endpoint using the **Splunk Universal Forwarder**.
+This step provides the software installer for the central SIEM platform that will index, store, and analyze security telemetry.
 
 ![Figure 1 - Splunk Enterprise download page](screenshots/01-splunk-enterprise-download.png)
 
 *Figure 1: Splunk Enterprise download page showing the Windows installation package.*
 
+---
+
 ### 2. Installing Splunk Enterprise
 
-The downloaded Splunk Enterprise installation package was located in the **Downloads** folder and used to install Splunk Enterprise on the Windows system.
+The downloaded installer was executed to deploy Splunk Enterprise on the physical host machine.
 
 #### Procedure
 
-1. Navigate to the **Downloads** folder and locate the downloaded Splunk Enterprise installer.
-2. Open the installer to launch the **Splunk Enterprise Setup Wizard**.
-3. Review the Splunk Enterprise license agreement and accept the terms to continue.
-4. Select the installation location for Splunk Enterprise. The default installation directory was used.
-5. Create the initial **Splunk administrator account** by entering a username and password.
-6. Review the selected installation options and click **Install** to begin the installation.
-7. Wait for the installation process to complete.
-8. Once the installation is completed successfully, click **Finish** to close the Setup Wizard.
+1. Navigate to the `Downloads` directory and launch the Splunk Enterprise installer.
+2. Accept the software license agreement.
+3. Select the installation path (default: `C:\Program Files\Splunk`).
+4. Set up the primary **Splunk administrator credentials** (username and secure password).
+5. Complete the installation wizard and click **Finish**.
 
 #### Purpose
 
-This step installs **Splunk Enterprise** on the Windows system, establishing the central SIEM platform that will later be configured to **receive, index, search, and analyze security logs** from the Windows endpoint.
+This deploys the central indexing service, the embedded web server (port 8000), and the background management service (`splunkd` on port 8089).
 
 ![Figure 2 - Splunk Enterprise installation](screenshots/02-splunk-enterprise-installation.png)
 
 *Figure 2: Splunk Enterprise installation and configuration using the Setup Wizard.*
 
+---
+
 ### 3. Configuring Splunk Receiving
 
-After installing Splunk Enterprise, the application was launched and configured to receive data from the **Splunk Universal Forwarder**.
+Before the Universal Forwarder can stream data, Splunk Enterprise must be explicitly configured to listen for incoming forwarder traffic on a dedicated TCP receiving port.
 
 #### Procedure
 
-1. Launch **Splunk Enterprise** from the Windows system.
-2. The Splunk login screen will appear. Enter the **username and password** created during the installation process.
-3. After successful authentication, the **Splunk Web interface** will be displayed.
-4. Click **Settings** to open the settings menu.
-5. Under the **Data** section, select **Forwarding and receiving**.
+1. Log into the **Splunk Web Interface** (`http://localhost:8000`) using the administrative credentials.
+2. In the top navigation bar, click **Settings**.
+3. Under the **Data** category, select **Forwarding and receiving**.
 
 ![Figure 3 - Forwarding and Receiving settings](screenshots/03-forwarding-receiving-settings.png)
 
 *Figure 3: Accessing the Forwarding and Receiving configuration under Splunk Settings.*
 
-6. In the **Receive Data** section, locate **Configure receiving** and click **Add new**.
+4. In the **Receive data** section, click **Add new** next to *Configure receiving*.
 
 ![Figure 4 - Receive Data configuration](screenshots/04-receive-data.png)
 
 *Figure 4: Receive Data section in the Splunk Forwarding and Receiving configuration.*
 
-7. Specify the port number that Splunk Enterprise will use to receive forwarded data. The default Splunk receiving port **9997** was used.
+5. Enter the standard Splunk receiver port: **9997**.
 
 ![Figure 5 - Splunk receiving port](screenshots/05-receiving-port-9997.png)
 
 *Figure 5: Configuring Splunk Enterprise to receive forwarded data on port 9997.*
 
-8. Save the configuration to enable Splunk Enterprise to listen for incoming data from the Universal Forwarder.
+6. Save the configuration. Splunk Enterprise will now actively listen on TCP `9997`.
 
 #### Purpose
 
-This step configures Splunk Enterprise to **receive log data from the Splunk Universal Forwarder**. Port **9997** is used as the receiving port through which forwarded event data is sent from the Windows endpoint to the Splunk Enterprise server.
+Enables the TCP input pipeline on port `9997`, allowing Splunk Enterprise to parse, index, and categorize data forwarded from remote endpoints.
+
+---
 
 ### 4. Downloading and Installing Splunk Universal Forwarder
 
-A separate **Windows 11 virtual machine** was prepared in **VMware Workstation** to function as the endpoint for the Splunk Universal Forwarder. The Universal Forwarder was installed on this system to collect and forward Windows event logs to the Splunk Enterprise server.
+A dedicated **Windows 11 virtual machine** was prepared inside **VMware Workstation** to serve as the log-generating endpoint.
 
 #### Procedure
 
-1. Launch **VMware Workstation** and start the prepared **Windows 11 virtual machine**.
+1. Boot the Windows 11 virtual machine within VMware Workstation.
 
 ![Figure 6 - Windows 11 virtual machine](screenshots/06-windows-11-forwarder-vm.png)
 
 *Figure 6: Windows 11 virtual machine prepared for Splunk Universal Forwarder installation.*
 
-2. Open a web browser within the Windows 11 virtual machine and navigate to the [official Splunk website](https://www.splunk.com/?utm_source=chatgpt.com).
-3. Navigate to the **Splunk Universal Forwarder** download section.
-4. Select **Windows** as the target operating system and download the appropriate **Splunk Universal Forwarder** installation package.
+2. Open a browser in the VM and navigate to the [official Splunk Universal Forwarder download page](https://www.splunk.com/en_us/download/universal-forwarder.html).
+3. Select and download the **Windows 64-bit Universal Forwarder** installer.
 
 ![Figure 7 - Splunk Universal Forwarder download](screenshots/07-splunk-universal-forwarder-download.png)
 
 *Figure 7: Splunk Universal Forwarder page showing the Windows installation package.*
 
-5. After the download is complete, navigate to the **Downloads** folder.
-6. Locate the downloaded Splunk Universal Forwarder installer and open it to begin the installation process.
+4. Locate the downloaded installer in the VM's `Downloads` directory.
 
 #### Purpose
 
-This step prepares the Windows 11 endpoint for the installation of the **Splunk Universal Forwarder**, which will be used to collect Windows logs and forward them to the Splunk Enterprise server for centralized monitoring and analysis.
+Deploys the lightweight agent on the target machine without the overhead of the full Splunk Enterprise suite.
+
+---
 
 ### 5. Installing and Configuring Splunk Universal Forwarder
 
-The Splunk Universal Forwarder installation was initiated on the **Windows 11 virtual machine**. During the installation, the required configuration settings were provided to establish communication between the Universal Forwarder and the Splunk Enterprise server.
+The Universal Forwarder was installed and configured to capture the necessary Windows event channels and point to the host SIEM indexer.
 
 #### Procedure
 
-1. Open the downloaded **Splunk Universal Forwarder** installer.
-2. On the first installation window, review and accept the **license agreement**.
-3. Select the **Customize** option to configure the installation.
+1. Run the **Splunk Universal Forwarder** installer on the Windows 11 VM.
+2. Accept the license agreement and click **Customize** for granular control over the configuration.
 
 ![Figure 8 - Splunk Universal Forwarder installation](screenshots/08-universal-forwarder-installation.png)
 
-*Figure 8: Splunk Universal Forwarder installation screen showing the license agreement and customization option.*
+*Figure 8: Splunk Universal Forwarder installation screen showing the customization option.*
 
-4. Proceed through the installation using the default settings where applicable.
-5. When prompted to configure the **user account**, select **Local System** as the account under which the Universal Forwarder will run.
+3. Set the service account to **Local System** to ensure the forwarder has sufficient permissions to read Windows Security event logs.
 
 ![Figure 9 - Local System account](screenshots/09-local-system-account.png)
 
 *Figure 9: Configuring the Splunk Universal Forwarder to run under the Local System account.*
 
-6. Continue to the log selection window and select the **types of logs to be monitored**. The following Windows event logs were selected:
-
+4. Select the event log streams to capture:
    * **Application**
    * **Security**
    * **System**
@@ -249,67 +287,60 @@ The Splunk Universal Forwarder installation was initiated on the **Windows 11 vi
 
 *Figure 10: Selecting Windows log sources to be monitored by the Splunk Universal Forwarder.*
 
-7. During the installation, the **Deployment Server** configuration window will appear. Enter the **hostname or IP address** of the Windows system where Splunk Enterprise is installed.
-8. To identify the IP address of the Splunk Enterprise system, open **Command Prompt** and execute:
-
-```cmd
-ipconfig
-```
-
-9. Identify and copy the **IPv4 Address** of the Splunk Enterprise Windows system.
+5. Open **Command Prompt** on the **Splunk Enterprise Host** machine and run:
+   ```cmd
+   ipconfig
+   ```
+6. Identify the host's IPv4 address.
 
 ![Figure 11 - Splunk Enterprise IPv4 address](screenshots/11-splunk-enterprise-ipconfig.png)
 
 *Figure 11: Obtaining the Splunk Enterprise server IPv4 address using the `ipconfig` command.*
 
-10. Enter the copied IPv4 address in the **Deployment Server** hostname/IP field and use the default port **8089**.
+7. In the **Deployment Server** step of the installer, enter the host's IPv4 address and default port **8089**.
 
 ![Figure 12 - Deployment Server configuration](screenshots/12-deployment-server-8089.png)
 
 *Figure 12: Configuring the Deployment Server hostname/IP address and port 8089.*
 
-11. Click **Next** to continue.
-12. In the **Receiving Indexer** configuration window, enter the **hostname or IP address** of the Windows system running Splunk Enterprise.
-13. Enter the receiving port **9997**, which was configured earlier in Splunk Enterprise.
+8. In the **Receiving Indexer** step, enter the same host IPv4 address and the listening port **9997**.
 
 ![Figure 13 - Receiving Indexer configuration](screenshots/13-receiving-indexer-9997.png)
 
 *Figure 13: Configuring the Receiving Indexer using the Splunk Enterprise server address and port 9997.*
 
-14. Click **Next** and review the selected configuration options.
-15. Click **Install** to begin installing the Splunk Universal Forwarder.
-16. Wait for the installation process to complete.
+9. Complete the installation. The Universal Forwarder service (`SplunkForwarder`) starts automatically.
 
 #### Purpose
 
-This step installs and configures the **Splunk Universal Forwarder** on the Windows 11 endpoint. The **Deployment Server** configuration specifies the Splunk Enterprise server and management port **8089**, while the **Receiving Indexer** configuration specifies the Splunk Enterprise server and receiving port **9997** to which collected logs will be forwarded.
+Establishes the forwarder's communication channels: management via port `8089` and active event data stream forwarding via port `9997`.
 
-The **Application, Security, and System** event logs selected during installation provide the Windows event data that will subsequently be collected and analyzed through Splunk Enterprise.
+---
 
 ### 6. Verifying Forwarded Windows Logs in Splunk Enterprise
 
-After configuring the Splunk Universal Forwarder, the **Splunk Enterprise** interface was accessed to verify that Windows event logs were successfully received from the endpoint.
+Once the agent was active, ingestion was verified within Splunk Enterprise.
 
 #### Procedure
 
-1. Open **Splunk Enterprise** and navigate to the **Search & Reporting** application.
-2. Select **Data Summary** to view the available indexed data.
-3. Under **Hosts**, verify that the number of available hosts has changed to **1**.
-4. The hostname of the connected Windows endpoint is displayed. In this lab, the hostname was **DESKTOP-LHM0G2V**.
+1. In Splunk Web, open the **Search & Reporting** app.
+2. Click **Data Summary**.
+3. Under the **Hosts** tab, verify that the forwarder host appears (in this lab: **`DESKTOP-LHM0G2V`**).
 
 ![Figure 14 - Splunk Data Summary](screenshots/14-splunk-data-summary.png)
 
 *Figure 14: Splunk Enterprise Data Summary showing the connected Windows host DESKTOP-LHM0G2V.*
 
-5. The **event count** associated with the host can also be viewed, confirming that events are being received.
-6. Under **Sources**, the available Windows event log sources can be observed, including **Application, Security, and System** logs.
+4. Under the **Sources** tab, confirm that the three Windows event channels are actively populating:
+   * `WinEventLog:Application`
+   * `WinEventLog:Security`
+   * `WinEventLog:System`
 
 ![Figure 15 - Windows event sources](screenshots/15-windows-event-sources.png)
 
 *Figure 15: Windows event log sources received by Splunk Enterprise.*
 
-7. Select the required **Host** or **Source** to view the corresponding events.
-8. The received logs can then be searched and monitored using the **Splunk Search & Reporting** interface.
+5. Click on any source or host to inspect raw ingested events, timestamps, and extracted fields in real time.
 
 ![Figure 16 - Received Windows logs](screenshots/16-windows-event-logs.png)
 
@@ -317,37 +348,137 @@ After configuring the Splunk Universal Forwarder, the **Splunk Enterprise** inte
 
 #### Purpose
 
-This step verifies the successful communication between the **Splunk Universal Forwarder** and **Splunk Enterprise**. The appearance of the Windows host and its **Application, Security, and System** event sources confirms that Windows event data is being successfully forwarded to and indexed by Splunk Enterprise.
+Validates that end-to-end network connectivity, port forwarding, authentication, and event indexing are functioning properly.
 
-The received events can then be searched and monitored through **Splunk Search & Reporting**, demonstrating the successful completion of the Windows log collection and centralized monitoring process.
+---
+
+## 📄 Forwarder Configuration Files
+
+While the GUI wizard configures the forwarder, in enterprise production environments configuration is managed via configuration files (`.conf`). Samples are included in the [`configs/`](configs/) directory of this repository:
+
+### `inputs.conf` (`%SPLUNK_HOME%\etc\system\local\inputs.conf`)
+Specifies which local logs the forwarder reads and streams:
+
+```ini
+[default]
+host = DESKTOP-LHM0G2V
+
+[WinEventLog://Application]
+disabled = 0
+index = main
+
+[WinEventLog://Security]
+disabled = 0
+index = main
+
+[WinEventLog://System]
+disabled = 0
+index = main
+```
+
+### `outputs.conf` (`%SPLUNK_HOME%\etc\system\local\outputs.conf`)
+Specifies destination indexers and port targets:
+
+```ini
+[tcpout]
+defaultGroup = default-autolb-group
+
+[tcpout:default-autolb-group]
+server = 192.168.1.50:9997
+```
+
+---
+
+## 🔍 Sample Splunk Queries (SPL) for Security Monitoring
+
+Once Windows event logs are ingested into Splunk, analysts can run searches to detect potential security incidents and suspicious endpoint activity:
+
+### 1. Detect Failed Logon Attempts (Potential Brute Force / Password Spray)
+*Windows Event ID 4625 indicates an account failed to log on.*
+```spl
+index=main sourcetype="WinEventLog:Security" EventCode=4625
+| stats count by TargetUserName, WorkstationName, IpAddress, FailureReason
+| sort - count
+```
+
+### 2. Identify Successful Logons & Logon Types
+*Windows Event ID 4624 records successful authentications (e.g., LogonType 2 = Interactive, LogonType 10 = RDP).*
+```spl
+index=main sourcetype="WinEventLog:Security" EventCode=4624
+| table _time, TargetUserName, LogonType, IpAddress, WorkstationName
+| sort - _time
+```
+
+### 3. Track User Account Lockouts
+*Windows Event ID 4740 is triggered when an account is locked out after repeated failed attempts.*
+```spl
+index=main sourcetype="WinEventLog:Security" EventCode=4740
+| table _time, TargetUserName, Caller_Computer_Name
+```
+
+### 4. Monitor New Service Installations (Potential Persistence)
+*Windows System Event ID 7045 indicates a new service was installed on the endpoint.*
+```spl
+index=main sourcetype="WinEventLog:System" EventCode=7045
+| table _time, ServiceName, ServiceFileName, ServiceType, ServiceAccount
+```
+
+### 5. Review User Account Creation & Management
+*Windows Event ID 4720 alerts whenever a new local or domain account is created.*
+```spl
+index=main sourcetype="WinEventLog:Security" (EventCode=4720 OR EventCode=4722 OR EventCode=4726)
+| table _time, EventCode, TargetUserName, SubjectUserName
+```
+
+---
+
+## 🛠️ Network & Firewall Troubleshooting
+
+When deploying the Universal Forwarder in virtualized or segmented lab networks, connectivity issues are common. Here are key validation steps:
+
+1. **Verify Inbound Receiver Port (Host SIEM)**:
+   Ensure Windows Defender Firewall allows inbound TCP traffic on port `9997`. Run in PowerShell (Admin):
+   ```powershell
+   New-NetFirewallRule -DisplayName "Splunk Ingestion Port 9997" -Direction Inbound -LocalPort 9997 -Protocol TCP -Action Allow
+   ```
+
+2. **Test Port Connectivity from Endpoint VM**:
+   From the Windows 11 virtual machine, test if port 9997 is reachable on the host:
+   ```powershell
+   Test-NetConnection -ComputerName <SPLUNK_ENTERPRISE_IP> -Port 9997
+   ```
+   *Expected output: `TcpTestSucceeded : True`*
+
+3. **Check Splunk Forwarder Logs**:
+   Inspect forwarder internal logs on the VM to debug connection drops:
+   ```powershell
+   Get-Content "C:\Program Files\SplunkUniversalForwarder\var\log\splunk\splunkd.log" -Tail 50
+   ```
+
+---
 
 ## 🧠 Skills Earned
 
-Through this project, the following practical skills were developed:
+* **SIEM Architecture & Administration**: Deploying and configuring Splunk Enterprise as a centralized monitoring system.
+* **Endpoint Telemetry & Log Collection**: Installing and tuning Splunk Universal Forwarder agents on Windows endpoints.
+* **Network & Port Ingestion Management**: Configuring TCP receiving channels (`9997`) and management listeners (`8089`).
+* **Windows Event Log Analysis**: Ingesting and differentiating Application, Security, and System event streams.
+* **SPL Query Crafting**: Writing Search Processing Language queries to detect authentication anomalies and system changes.
+* **Firewall & Network Troubleshooting**: Diagnosing host-to-VM connectivity and verifying open service sockets.
 
-* **Splunk Enterprise installation and configuration**
-* **Splunk Universal Forwarder installation and configuration**
-* **SIEM architecture and log management concepts**
-* **Windows event log collection and monitoring**
-* **Configuration of Splunk receiving ports**
-* **Configuration of Deployment Server and Receiving Indexer settings**
-* **Log forwarding between Windows endpoints and a centralized SIEM**
-* **Splunk Search & Reporting and Data Summary usage**
-* **Identification and monitoring of Windows hosts and log sources**
-* **Basic troubleshooting and verification of SIEM log ingestion**
+---
 
 ## 🔑 Key Learnings
 
-This project provided practical experience in deploying a basic **SIEM environment** and understanding how endpoint logs are centralized for security monitoring. It demonstrated the role of **Splunk Enterprise** as the central platform and the **Universal Forwarder** as the log collection and forwarding component.
+* **Centralized Visibility**: Forwarding raw endpoint telemetry to a centralized SIEM drastically reduces incident response time compared to reviewing local Windows Event Viewers.
+* **Agent Architecture**: Splunk Universal Forwarder operates as a lightweight service with minimal CPU/RAM overhead, making it ideal for distributed endpoints.
+* **Importance of Configuration Files**: While graphical installers are helpful for initial setups, understanding `inputs.conf` and `outputs.conf` is essential for scalable SOC operations.
+* **Validation Methodology**: Verification using Splunk's **Data Summary** confirms not only host discovery but also event volume, source typing, and timestamp alignment.
 
-The project also provided an understanding of how **Windows Application, Security, and System events** can be collected and viewed through a centralized interface. Configuring the receiving port, Deployment Server, and Receiving Indexer helped develop an understanding of communication between the endpoint and SIEM server.
-
-The verification process using **Data Summary** and **Search & Reporting** demonstrated how security analysts can identify connected hosts, examine log sources, review event counts, and search collected events for monitoring and investigation.
+---
 
 ## ✅ Conclusion
 
-The project successfully demonstrated the implementation of a basic **SIEM lab using Splunk Enterprise and Splunk Universal Forwarder**. Splunk Enterprise was installed and configured as the centralized SIEM platform, while the Splunk Universal Forwarder was deployed on a **Windows 11 endpoint** to collect and forward Windows event logs.
+This project successfully established a working **SIEM pipeline using Splunk Enterprise and the Splunk Universal Forwarder**. By bridging a physical host SIEM server with a virtualized Windows 11 endpoint (`DESKTOP-LHM0G2V`), the lab verified full ingestion and indexing across Windows Application, Security, and System event streams.
 
-The successful appearance of the Windows host **DESKTOP-LHM0G2V**, along with the **Application, Security, and System** log sources in Splunk Enterprise, confirmed that the log collection and forwarding process was working successfully.
-
-Overall, the project provided valuable hands-on experience with **SIEM deployment, centralized log collection, Windows event monitoring, Splunk configuration, and basic security monitoring**, establishing a practical foundation for further **SOC and security operations activities**.
+The project demonstrates foundational knowledge essential for **SOC Analysts, Detection Engineers, and SIEM Administrators**, providing practical exposure to log forwarder deployment, network configurations, data verification, and event investigation.
